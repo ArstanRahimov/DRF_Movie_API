@@ -30,12 +30,13 @@ class RegistrationSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         password1 = attrs.get('password')
-        password2 = attrs.get('password_confirm')
+        password2 = attrs.pop('password_confirm')  # .pop - удаляем password_confirm, так как он не нужен при
+        # создании Пользователя, но при этом .pop возвращает значение, которое мы будем проверять
         if password1 != password2:
             serializers.ValidationError('Пароли не совпадают')
         return attrs
 
-    def create(self, validated_data):
+    def create(self):
         user = User.objects.create_user(**self.validated_data)
         user.create_activation_code()
         user.send_activation_sms()

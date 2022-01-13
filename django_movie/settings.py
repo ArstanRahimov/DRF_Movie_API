@@ -39,7 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_filters',
+    'drf_yasg',  # документация API (пути и методы запросов)
     'rest_framework',
+    'rest_framework.authtoken',
+
+    'account',
 ]
 
 MIDDLEWARE = [
