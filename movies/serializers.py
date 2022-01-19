@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Movie, Review
+from .models import Movie, Review, Rating
 
 
 class MovieListSerializer(serializers.ModelSerializer):
@@ -61,3 +61,22 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         exclude = ('draft', )
+
+
+class CreateRatingSerializer(serializers.ModelSerializer):
+    """Добавление рейтинга пользователем"""
+
+    class Meta:
+        model = Rating
+        fields = ('star', 'movie')
+
+    def create(self, validated_data):
+        """Метод update_or_create пытается получить объект из базы данных.
+        Если объект найден, он обновляет поля указанные в defaults."""
+        rating = Rating.objects.update_or_create(
+            ip=validated_data.get('ip', None),
+            movie=validated_data.get('movie', None),
+            defaults={'star': validated_data.get('star')}  # если ip и movie уже есть в БД, то заново запись
+            # создаваться не будет, обновится только поле 'star'
+        )
+        return rating

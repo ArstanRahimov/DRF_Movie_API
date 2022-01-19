@@ -139,6 +139,11 @@ class RatingAdmin(admin.ModelAdmin):
     list_display = ('movie', 'ip', 'star')
 
 
+@admin.register(RatingStar)
+class RatingStarAdmin(admin.ModelAdmin):
+    list_display = ('id', 'value')
+
+
 @admin.register(MovieShots)
 class MovieShotsAdmin(admin.ModelAdmin):
     list_display = ('title', 'movie', 'get_image')
@@ -157,7 +162,7 @@ class MovieShotsAdmin(admin.ModelAdmin):
 # admin.site.register(MovieShots)
 # admin.site.register(Actor)
 # admin.site.register(Rating)
-admin.site.register(RatingStar)
+# admin.site.register(RatingStar)
 # admin.site.register(Reviews)
 
 
