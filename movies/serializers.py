@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Movie, Review, Rating
+from .models import Movie, Review, Rating, Actor
 
 
 class MovieListSerializer(serializers.ModelSerializer):
@@ -49,13 +49,27 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('email', 'name', 'text', 'children')
 
 
+class ActorListSerializer(serializers.ModelSerializer):
+    """Вывод списка актеров и режиссеров"""
+    class Meta:
+        model = Actor
+        fields = ('id', 'name', 'image')
+
+
+class ActorDetailSerializer(serializers.ModelSerializer):
+    """Вывод полного описания актера или режиссера"""
+    class Meta:
+        model = Actor
+        fields = '__all__'
+
+
 class MovieDetailSerializer(serializers.ModelSerializer):
     """Полное описание фильма"""
 
     """Переопределяем поля, для того, чтобы вместо id полей, выводились их названия(по полю 'name')"""
     category = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    directors = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
-    actors = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
+    directors = ActorListSerializer(read_only=True, many=True)
+    actors = ActorListSerializer(read_only=True, many=True)
     genres = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
 
     """По related_name = 'reviews' выводим отзывы к фильму"""
@@ -83,3 +97,4 @@ class CreateRatingSerializer(serializers.ModelSerializer):
             # создаваться не будет, обновится только поле 'star'
         )
         return rating
+
