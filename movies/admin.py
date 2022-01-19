@@ -65,7 +65,7 @@ class MovieAdmin(admin.ModelAdmin):
 
     fieldsets = (  # еще один вариант группировки полей
         (None, {
-            'fields': (('title', 'tagLine'), )
+            'fields': (('title', 'tagline'), )
         }),
         (None, {
             'fields': ('description', ('poster', 'get_image'))
