@@ -6,3 +6,4 @@ django-filter
 twilio
 python-decouple
 drf-yasg
+django-ckeditor
