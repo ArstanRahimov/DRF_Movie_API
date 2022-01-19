@@ -16,6 +16,7 @@ def normalize_phone(phone):
 
 class RegistrationSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=20, required=True)
+    email = serializers.EmailField()
     name = serializers.CharField(max_length=50, required=True)
     password = serializers.CharField(min_length=6, required=True)
     password_confirm = serializers.CharField(min_length=6, required=True)

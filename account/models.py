@@ -3,27 +3,28 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
-    def _create(self, phone, password, name, **extra_fields):
+    def _create(self, phone, password, email, name, **extra_fields):
         if not phone:
             raise ValueError('Номер телефона обязателен')
-        user = self.model(phone=phone, name=name, **extra_fields)
+        user = self.model(phone=phone, email=email, name=name, **extra_fields)
         user.set_password(password)
         user.save()
         return user
 
-    def create_user(self, phone, password, name, **extra_fields):
+    def create_user(self, phone, password, email, name, **extra_fields):
         extra_fields.setdefault('is_active', False)
         extra_fields.setdefault('is_staff', False)
-        return self._create(phone, password, name, **extra_fields)
+        return self._create(phone, password, email, name, **extra_fields)
 
-    def create_superuser(self, phone, password, name, **extra_fields):
+    def create_superuser(self, phone, password, email, name, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
-        return self._create(phone, password, name, **extra_fields)
+        return self._create(phone, password, email, name, **extra_fields)
 
 
 class User(AbstractBaseUser):
     phone = models.CharField(max_length=20, primary_key=True)
+    email = models.EmailField()
     name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
@@ -32,7 +33,7 @@ class User(AbstractBaseUser):
     activation_code = models.CharField(max_length=6, blank=True)
 
     USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ['name', 'email']
 
     objects = UserManager()
 
