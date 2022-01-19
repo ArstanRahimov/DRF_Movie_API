@@ -11,6 +11,22 @@ class MovieListSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'tagline', 'category')
 
 
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    """Добавление отзыва"""
+
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Вывод отзыва"""
+
+    class Meta:
+        model = Review
+        fields = ('email', 'name', 'text', 'parent')
+
+
 class MovieDetailSerializer(serializers.ModelSerializer):
     """Полное описание фильма"""
 
@@ -20,14 +36,9 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     actors = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
     genres = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
 
+    """По related_name = 'reviews' выводим отзывы к фильму"""
+    reviews = ReviewSerializer(many=True)
+
     class Meta:
         model = Movie
         exclude = ('draft', )
-
-
-class ReviewCreateSerializer(serializers.ModelSerializer):
-    """Добавление отзыва"""
-
-    class Meta:
-        model = Review
-        fields = '__all__'
