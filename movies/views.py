@@ -1,17 +1,27 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db import models
 
 from .models import Movie, Review
 from .serializers import MovieListSerializer, MovieDetailSerializer, ReviewCreateSerializer, CreateRatingSerializer
+from .service import get_client_ip
 
 
 class MovieListView(APIView):
      """Вывод списка фильмов"""
 
+# rating_user будет автоматически добавлено каждому объекту Movie и ему будет присвоено значение True/False
+# в зависимости от того, ставил ли он рейтинг фильму
+
      def get(self, request):
-         movies = Movie.objects.filter(draft=False)
-         serialzer = MovieListSerializer(movies, many=True)
-         return Response(serialzer.data)
+         movies = Movie.objects.filter(draft=False).annotate(
+             rating_user=models.Count('ratings', filter=models.Q(ratings__ip=get_client_ip(request)))
+         ).annotate(
+             average_rating=models.Sum(models.F('ratings__star')) / models.Count(models.F('ratings'))
+         )  # общую сумму звезд рейтинга делим на количество записей с оценками. Метод F позволяет производить мат.
+         # операции
+         serializer = MovieListSerializer(movies, many=True)
+         return Response(serializer.data)
 
 
 class MovieDetailView(APIView):
@@ -36,18 +46,10 @@ class ReviewCreateView(APIView):
 class AddStarRatingView(APIView):
     """Добавление рейтинга фильму"""
 
-    def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
-
     def post(self, request):
         serializer = CreateRatingSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(ip=self.get_client_ip(request))
+            serializer.save(ip=get_client_ip(request))
             return Response(status=201)
         else:
             return Response(status=400)
