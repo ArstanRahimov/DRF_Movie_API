@@ -1,16 +1,20 @@
 from rest_framework import generics
 from django.db import models
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Movie, Actor
 from .serializers import (MovieListSerializer, MovieDetailSerializer, ReviewCreateSerializer,
-                          CreateRatingSerializer, ActorListSerializer, ActorDetailSerializer)
-from .service import get_client_ip
+                          CreateRatingSerializer, ActorListSerializer, ActorDetailSerializer,
+                          )
+from .service import get_client_ip, MovieFilter
 
 
 class MovieListView(generics.ListAPIView):
      """Вывод списка фильмов"""
 
      serializer_class = MovieListSerializer
+     filter_backends = (DjangoFilterBackend, )
+     filterset_class = MovieFilter  # указываем класс, используемый для фильтрации
 
 # rating_user будет автоматически добавлено каждому объекту Movie и ему будет присвоено значение True/False
 # в зависимости от того, ставил ли он рейтинг фильму

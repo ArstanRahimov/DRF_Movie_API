@@ -91,7 +91,7 @@ class CreateRatingSerializer(serializers.ModelSerializer):
         """Метод update_or_create пытается получить объект из базы данных.
         Если объект найден, он обновляет поля указанные в defaults."""
         rating, _ = Rating.objects.update_or_create(  # update_or_create возвращает кортеж (object,
-            # created(True/False)), сделаем множественное присваивание, чтобы в rating сохранился объект, так как мы
+            # True/False), сделаем множественное присваивание, чтобы в rating сохранился объект, так как мы
             # его будем передавать во Views
             ip=validated_data.get('ip', None),
             movie=validated_data.get('movie', None),
