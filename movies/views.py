@@ -1,4 +1,6 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, viewsets
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from django.db import models
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -9,18 +11,17 @@ from .serializers import (MovieListSerializer, MovieDetailSerializer, ReviewCrea
 from .service import get_client_ip, MovieFilter
 
 
-class MovieListView(generics.ListAPIView):
-     """Вывод списка фильмов"""
+class MovieViewSet(viewsets.ModelViewSet):
 
-     serializer_class = MovieListSerializer
-     filter_backends = (DjangoFilterBackend, )
-     filterset_class = MovieFilter  # указываем класс, используемый для фильтрации
-     permission_classes = [permissions.IsAuthenticated]
+    queryset = Movie.objects.all()
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = MovieFilter  # указываем класс, используемый для фильтрации
+    permission_classes = [permissions.IsAuthenticated]
 
 # rating_user будет автоматически добавлено каждому объекту Movie и ему будет присвоено значение True/False
 # в зависимости от того, ставил ли он рейтинг фильму
 
-     def get_queryset(self):
+    def get_queryset(self):
          movies = Movie.objects.filter(draft=False).annotate(
              rating_user=models.Count('ratings', filter=models.Q(ratings__ip=get_client_ip(self.request)))
          ).annotate(
@@ -29,12 +30,17 @@ class MovieListView(generics.ListAPIView):
          # операции
          return movies
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return MovieListSerializer
+        return MovieDetailSerializer
 
-class MovieDetailView(generics.RetrieveAPIView):
-    """Вывод полного описания фильма"""
 
-    queryset = Movie.objects.filter(draft=False)
-    serializer_class = MovieDetailSerializer
+# class MovieDetailView(generics.RetrieveAPIView):
+#     """Вывод полного описания фильма"""
+#
+#     queryset = Movie.objects.filter(draft=False)
+#     serializer_class = MovieDetailSerializer
 
 
 class ReviewCreateView(generics.CreateAPIView):
@@ -53,15 +59,25 @@ class AddStarRatingView(generics.CreateAPIView):
         serializer.save(ip=get_client_ip(self.request))
 
 
-class ActorsListView(generics.ListAPIView):
-    """Вывод списка актеров"""
-
+class ActorViewSet(viewsets.ModelViewSet):
+    """Вывод списка и детализация актеров"""
     queryset = Actor.objects.all()
-    serializer_class = ActorListSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ActorListSerializer
+        return ActorDetailSerializer
 
 
-class ActorDetailView(generics.RetrieveAPIView):
-    """Вывод полного описания актера или режиссера"""
-
-    queryset = Actor.objects.all()
-    serializer_class = ActorDetailSerializer
+# class ActorsListView(generics.ListAPIView):
+#
+#
+#     queryset = Actor.objects.all()
+#     serializer_class = ActorListSerializer
+#
+#
+# class ActorDetailView(generics.RetrieveAPIView):
+#     """Вывод полного описания актера или режиссера"""
+#
+#     queryset = Actor.objects.all()
+#     serializer_class = ActorDetailSerializer
