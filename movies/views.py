@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
 from django.db import models
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -15,6 +15,7 @@ class MovieListView(generics.ListAPIView):
      serializer_class = MovieListSerializer
      filter_backends = (DjangoFilterBackend, )
      filterset_class = MovieFilter  # указываем класс, используемый для фильтрации
+     permission_classes = [permissions.IsAuthenticated]
 
 # rating_user будет автоматически добавлено каждому объекту Movie и ему будет присвоено значение True/False
 # в зависимости от того, ставил ли он рейтинг фильму
